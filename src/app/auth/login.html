@@ -1,6 +1,44 @@
-<h2>Login</h2>
-<form (ngSubmit)="onLogin()">
-  <input [(ngModel)]="email" name="email" placeholder="Email" required />
-  <input [(ngModel)]="password" name="password" placeholder="Password" required type="password" />
-  <button type="submit">Login</button>
-</form>
+<!-- src/app/auth/login.html -->
+<div class="login-wrapper">
+  <form (ngSubmit)="onLogin()" #loginForm="ngForm" autocomplete="off">
+    <h2>Sign In</h2>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        required
+        [(ngModel)]="email"
+        #emailCtrl="ngModel"
+        [class.invalid]="emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)"
+        autocomplete="username"
+      />
+      <div *ngIf="emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)" class="error">
+        Email is required.
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        required
+        [(ngModel)]="password"
+        #passwordCtrl="ngModel"
+        [class.invalid]="passwordCtrl.invalid && (passwordCtrl.dirty || passwordCtrl.touched)"
+        autocomplete="current-password"
+      />
+      <div *ngIf="passwordCtrl.invalid && (passwordCtrl.dirty || passwordCtrl.touched)" class="error">
+        Password is required.
+      </div>
+    </div>
+    <button type="submit" [disabled]="loginForm.invalid || loading()">
+      {{ loading() ? 'Logging in...' : 'Log In' }}
+    </button>
+    <div *ngIf="error()" class="error-msg">
+      {{ error() }}
+    </div>
+  </form>
+</div>
