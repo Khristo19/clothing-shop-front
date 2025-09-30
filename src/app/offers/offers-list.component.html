@@ -1,0 +1,97 @@
+<div style="display:flex;flex-direction:column;gap:1.5rem">
+  <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+    <div>
+      <h1 style="margin:0;font-size:1.5rem">Offers & Discounts</h1>
+      <p style="margin:0;color:#6b7280">Review cross-shop requests, approve discounts, or create a new offer.</p>
+    </div>
+    <button style="padding:.5rem 1rem" (click)="showCreate.set(true)">New offer</button>
+  </header>
+
+  <section style="display:flex;gap:1rem;flex-wrap:wrap">
+    <div style="flex:1 1 160px;padding:1rem;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb">
+      <p style="margin:0;color:#6b7280;font-size:.875rem">Total offers</p>
+      <p style="margin:.25rem 0 0;font-size:1.5rem;font-weight:600">{{ totals().total }}</p>
+    </div>
+    <div style="flex:1 1 160px;padding:1rem;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb">
+      <p style="margin:0;color:#6b7280;font-size:.875rem">Pending approval</p>
+      <p style="margin:.25rem 0 0;font-size:1.5rem;font-weight:600">{{ totals().pending }}</p>
+    </div>
+    <div style="flex:1 1 160px;padding:1rem;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb">
+      <p style="margin:0;color:#6b7280;font-size:.875rem">Approved</p>
+      <p style="margin:.25rem 0 0;font-size:1.5rem;font-weight:600">{{ totals().approved }}</p>
+    </div>
+  </section>
+
+  <section *ngIf="error()" style="padding:.75rem;border-radius:8px;background:#fef2f2;color:#991b1b">
+    {{ error() }}
+  </section>
+  <section *ngIf="loading()" style="padding:.75rem;border-radius:8px;background:#eff6ff;color:#1d4ed8">
+    Syncing offers from the backend...
+  </section>
+
+  <section *ngIf="showCreate()" style="border:1px solid #e5e7eb;padding:1rem;border-radius:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <h2 style="margin:0;font-size:1.25rem">Create offer</h2>
+      <button type="button" (click)="showCreate.set(false)" style="padding:.25rem .75rem">Close</button>
+    </div>
+    <form [formGroup]="form" (ngSubmit)="create()" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
+      <div style="display:flex;flex-direction:column;gap:.25rem;grid-column:1/-1">
+        <label>Requesting shop</label>
+        <input formControlName="from_shop" placeholder="Store A" />
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.25rem;grid-column:1/-1">
+        <label>Items (JSON array)</label>
+        <textarea rows="3" formControlName="items" placeholder='[{"id":1,"qty":2}]'></textarea>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.25rem;grid-column:1/-1">
+        <label>Requested discount (JSON)</label>
+        <textarea rows="3" formControlName="requested_discount" placeholder='{"type":"percentage","value":10}'></textarea>
+      </div>
+      <div style="grid-column:1/-1;display:flex;justify-content:flex-end;gap:.5rem">
+        <button type="button" (click)="showCreate.set(false)" style="padding:.5rem 1rem">Cancel</button>
+        <button type="submit" style="padding:.5rem 1rem" [disabled]="form.invalid || loading()">Submit request</button>
+      </div>
+    </form>
+  </section>
+
+  <div *ngIf="!loading() && offers().length === 0" style="padding:1.5rem;border:1px dashed #d1d5db;border-radius:12px;text-align:center;color:#6b7280">
+    No offers yet.
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:1rem">
+    <article *ngFor="let offer of offers(); trackBy: trackById" style="border:1px solid #e5e7eb;border-radius:12px;padding:1rem;display:flex;flex-direction:column;gap:.75rem">
+      <header style="display:flex;justify-content:space-between;align-items:center;gap:1rem">
+        <div>
+          <h3 style="margin:0;font-size:1.1rem">{{ offer.from_shop }}</h3>
+          <small style="color:#6b7280">Created {{ offer.created_at | date:'medium' }}</small>
+        </div>
+        <span [ngStyle]="{
+          'background-color': offer.status === 'approved' ? '#dcfce7' : offer.status === 'rejected' ? '#fee2e2' : '#fef9c3',
+          'color': offer.status === 'approved' ? '#166534' : offer.status === 'rejected' ? '#991b1b' : '#854d0e',
+          'padding': '0.25rem 0.75rem',
+          'border-radius': '999px',
+          'font-weight': '500'
+        }">
+          {{ offer.status | titlecase }}
+        </span>
+      </header>
+
+      <section style="display:flex;flex-direction:column;gap:.5rem">
+        <strong>Items requested</strong>
+        <ul style="margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:.25rem">
+          <li *ngFor="let item of offer.items">{{ item.name || ('Item #' + item.id) }} &middot; Qty {{ item.qty }}</li>
+        </ul>
+      </section>
+
+      <section *ngIf="offer.requested_discount" style="display:flex;flex-direction:column;gap:.25rem">
+        <strong>Discount details</strong>
+        <code style="background:#f3f4f6;padding:.5rem;border-radius:8px;word-break:break-all;font-size:.85rem">{{ offer.requested_discount | json }}</code>
+      </section>
+
+      <footer style="display:flex;justify-content:flex-end;gap:.5rem" *ngIf="offer.status === 'pending'">
+        <button style="padding:.5rem 1rem" (click)="updateStatus(offer.id, 'rejected')" [disabled]="loading()">Reject</button>
+        <button style="padding:.5rem 1rem" (click)="updateStatus(offer.id, 'approved')" [disabled]="loading()">Approve</button>
+      </footer>
+    </article>
+  </div>
+</div>

@@ -1,0 +1,8 @@
+<h2>Settings</h2>
+<form [formGroup]="form" style="max-width:500px">
+  <label>Tax %<input type="number" formControlName="tax" /></label>
+  <label style="display:block;margin-top:.5rem">Currency<input formControlName="currency" /></label>
+  <div style="margin-top:.75rem"><button type="button" (click)="save()">Save</button></div>
+</form>
+
+

@@ -1,0 +1,64 @@
+<div style="display:flex;flex-direction:column;gap:1.5rem">
+  <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+    <div>
+      <h1 style="margin:0;font-size:1.5rem">Sales History</h1>
+      <p style="margin:0;color:#6b7280">Track recent orders, payment methods, and totals.</p>
+    </div>
+    <button style="padding:.5rem 1rem" (click)="load()">Refresh</button>
+  </header>
+
+  <section style="display:flex;gap:1rem;flex-wrap:wrap">
+    <div style="flex:1 1 160px;padding:1rem;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb">
+      <p style="margin:0;color:#6b7280;font-size:.875rem">Orders recorded</p>
+      <p style="margin:.25rem 0 0;font-size:1.5rem;font-weight:600">{{ orders().length }}</p>
+    </div>
+    <div style="flex:1 1 160px;padding:1rem;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb">
+      <p style="margin:0;color:#6b7280;font-size:.875rem">Total revenue</p>
+      <p style="margin:.25rem 0 0;font-size:1.5rem;font-weight:600">${{ totalRevenue() | number:'1.2-2' }}</p>
+    </div>
+    <div *ngIf="latestOrder()" style="flex:1 1 160px;padding:1rem;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb">
+      <p style="margin:0;color:#6b7280;font-size:.875rem">Last order</p>
+      <p style="margin:.25rem 0 0;font-size:1rem">{{ latestOrder() | date:'medium' }}</p>
+    </div>
+  </section>
+
+  <section *ngIf="error()" style="padding:.75rem;border-radius:8px;background:#fef2f2;color:#991b1b">
+    {{ error() }}
+  </section>
+  <section *ngIf="loading()" style="padding:.75rem;border-radius:8px;background:#eff6ff;color:#1d4ed8">
+    Loading recent orders...
+  </section>
+
+  <div *ngIf="!loading() && orders().length === 0" style="padding:1.5rem;border:1px dashed #d1d5db;border-radius:12px;text-align:center;color:#6b7280">
+    No orders were found.
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:1rem">
+    <article *ngFor="let order of orders(); trackBy: trackById" style="border:1px solid #e5e7eb;border-radius:12px;padding:1rem;display:flex;flex-direction:column;gap:.75rem">
+      <header style="display:flex;justify-content:space-between;align-items:center;gap:1rem">
+        <div>
+          <h3 style="margin:0;font-size:1.1rem">Order #{{ order.id }}</h3>
+          <small style="color:#6b7280">Placed {{ order.created_at | date:'medium' }}</small>
+        </div>
+        <span style="padding:.25rem .75rem;border-radius:999px;background:#eef2ff;color:#1e3a8a;font-weight:500;text-transform:capitalize">
+          {{ order.payment_method }}
+        </span>
+      </header>
+
+      <section style="display:flex;flex-direction:column;gap:.25rem">
+        <strong>Items</strong>
+        <ul style="margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:.25rem">
+          <li *ngFor="let item of order.items">
+            {{ item.name || ('Item #' + item.id) }}  &middot; Qty {{ item.qty }}<span *ngIf="item.price">  &middot; ${{ item.price | number:'1.2-2' }}</span>
+          </li>
+        </ul>
+      </section>
+
+      <footer style="display:flex;justify-content:flex-end;gap:1rem;align-items:center">
+        <span style="font-weight:600;font-size:1.1rem">Total ${{ order.total | number:'1.2-2' }}</span>
+        <span style="color:#6b7280">Cashier: {{ order.cashier_email || 'N/A' }}</span>
+      </footer>
+    </article>
+  </div>
+</div>
+

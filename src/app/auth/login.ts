@@ -34,13 +34,13 @@ export class LoginComponent {
     this.auth.login(this.email, this.password).subscribe({
       next: (res: { token: string }) => {
         this.auth.saveToken(res.token);
-
-        // You can now use this.auth.role() to get current user role!
-        const role = this.auth.role();
-        if (role === 'admin') this.router.navigate(['/admin']);
-        else if (role === 'cashier') this.router.navigate(['/cashier']);
-        else this.error.set('Unknown user role');
-        this.loading.set(false);
+        this.auth.fetchAndSetMe().subscribe(() => {
+          const role = this.auth.role();
+          if (role === 'admin') this.router.navigate(['/admin']);
+          else if (role === 'cashier') this.router.navigate(['/cashier']);
+          else this.error.set('Unknown user role');
+          this.loading.set(false);
+        });
       },
       error: (err) => {
         this.loading.set(false);

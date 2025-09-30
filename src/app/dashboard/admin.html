@@ -1,0 +1,45 @@
+<div style="display:flex;min-height:100vh;background:#f3f4f6">
+  <aside style="width:240px;padding:1.5rem;background:#111827;color:#f9fafb;display:flex;flex-direction:column;gap:2rem">
+    <div>
+      <h2 style="margin:0;font-size:1.25rem">Clothing Shop</h2>
+      <p style="margin:.25rem 0 0;color:#9ca3af;font-size:.875rem">Admin dashboard</p>
+    </div>
+    <nav style="display:flex;flex-direction:column;gap:.5rem">
+      <a routerLink="/admin/products" routerLinkActive="active"
+         style="padding:.5rem 1rem;border-radius:8px;color:inherit;text-decoration:none">
+        Products
+      </a>
+      <a routerLink="/admin/offers" routerLinkActive="active"
+         style="padding:.5rem 1rem;border-radius:8px;color:inherit;text-decoration:none">
+        Offers
+      </a>
+      <a routerLink="/admin/orders" routerLinkActive="active"
+         style="padding:.5rem 1rem;border-radius:8px;color:inherit;text-decoration:none">
+        Orders
+      </a>
+      <a routerLink="/admin/settings" routerLinkActive="active"
+         style="padding:.5rem 1rem;border-radius:8px;color:inherit;text-decoration:none">
+        Settings
+      </a>
+    </nav>
+  </aside>
+  <main style="flex:1;display:flex;flex-direction:column">
+    <header style="background:#fff;padding:1rem 1.5rem;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h1 style="margin:0;font-size:1.25rem">Welcome back{{ user()?.email ? ', ' + user()?.email : '' }}</h1>
+        <p style="margin:0;color:#6b7280;font-size:.9rem">Choose a section on the left to manage the shop.</p>
+      </div>
+      <button (click)="logout()" style="padding:.5rem 1rem">Logout</button>
+    </header>
+    <section style="flex:1;padding:1.5rem;overflow:auto">
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+</div>
+
+<style>
+  a.active {
+    background: rgba(255,255,255,0.2);
+    font-weight: 600;
+  }
+</style>
